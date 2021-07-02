@@ -11,7 +11,7 @@
 ### PAYMENT_INFO (결제정보 테이블)
 | COLUMN_NAME      | TYPE        | COMMENTS                                      |
 |------------------|-------------|-----------------------------------------------|
-| PAYMENT_ID       | VARCHAR(20) | 결제식별번호(unique id, 20자리) pk 채번필요함 |
+| PAYMENT_ID       | VARCHAR(20)(PK) | 결제식별번호(unique id, 20자리) pk 채번필요함 |
 | CARD_NUM         | VARCHAR(16) | 카드번호(10 ~ 16자리 숫자)                    |
 | EXPIRY_DATE      | VARCHAR(4)  | 유효기간(4자리 숫자, mmyy)                    |
 | CVC_NUM          | VARCHAR(3)  | cvc(3자리 숫자)                               |
@@ -29,8 +29,8 @@
 ### PAYMENT_CANCEL (결제취소 테이블)
 | COLUMN_NAME      | TYPE        | COMMENTS                               |
 |------------------|-------------|----------------------------------------|
-| PAYMENT_ID       | VARCHAR(20) | 결제식별번호(pk1, 20자리)              |
-| SEQ_NUM          | NUMBER      | 시퀀스번호(pk2 10자리) 관리번호별 생성 |
+| PAYMENT_ID       | VARCHAR(20)(PK) | 결제식별번호(20자리)              |
+| SEQ_NUM          | NUMBER(PK)      | 시퀀스번호(10자리) 관리번호별 생성 |
 | CANCEL_AMOUNT    | NUMBER      | 결제취소금액                           |
 | CANCEL_VAT       | NUMBER      | 결제취소부가가치세                     |
 | CANCEL_TIME      | DATE        | 결제취소일시                           |
@@ -40,7 +40,7 @@
 ### FORWARD_DATA (카드사 전달 데이터 테이블)
 | COLUMN_NAME      | TYPE         | COMMENTS       |
 |------------------|--------------|----------------|
-| SEQ_NUM          | NUMBER       | 시퀀스         |
+| SEQ_NUM          | NUMBER(PK)      | 시퀀스         |
 | DATA             | VARCHAR(450) | 카드사데이터   |
 | DATA_CREATE_TIME | DATE         | 데이터생성일시 |
 | DATA_MODIFY_TIME | DATE         | 데이터변경일시 |
