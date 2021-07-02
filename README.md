@@ -21,7 +21,7 @@
 | FINAL_AMOUNT     | NUMBER      | 최종결제금액                                  |
 | FINAL_VAT        | NUMBER      | 최종부가가치세                                |
 | STATUS           | VARCHAR(2)  | 상태코드 (00:승인, 01:전체취소 02:부분취소)   |
-| APPROVAL_DATE    | DATE        | 결제승인일시                                  |
+| APPROVAL_TIME    | DATE        | 결제승인일시                                  |
 | DATA_CREATE_TIME | DATE        | 데이터생성일시                                |
 | DATA_MODIFY_TIME | DATE        | 데이터변경일시                                |  
 
@@ -33,7 +33,7 @@
 | SEQ_NUM          | NUMBER      | 시퀀스번호(pk2 10자리) 관리번호별 생성 |
 | CANCEL_AMOUNT    | NUMBER      | 결제취소금액                           |
 | CANCEL_VAT       | NUMBER      | 결제취소부가가치세                     |
-| CANCEL_DATE      | DATE        | 결제취소일시                           |
+| CANCEL_TIME      | DATE        | 결제취소일시                           |
 | DATA_CREATE_TIME | DATE        | 데이터생성일시                         |
 | DATA_MODIFY_TIME | DATE        | 데이터변경일시                         |
 
@@ -49,9 +49,31 @@
 
   ### 1. 결제 API
   #### * API interface
+  | 항목명       | 항목설명   | 필수 | 타입(길이)                    |
+|--------------|------------|------|-------------------------------|
+| cardNum      | 카드번호   |   Y  | 10 ~ 16자리 숫자              |
+| expiryDate   | 유효기간   |   Y  | 4자리 숫자, mmyy              |
+| cvcNum       | CVC        |   Y  | 3자리 숫자                    |
+| installments | 할부개월수 |   Y  | 0(일시불), 1 ~ 12 숫자        |
+| amount       | 결제금액   |   Y  | 100원 이상, 10억원 이하, 숫자 |
+| vat          | 부가가치세 |   N  | 100원 이상, 10억원 이하, 숫자 |
+  
   ### 2. 결제취소 API
   #### * API interface
   ### 3. 데이터 조회 API
+    request
+    required
+    카드번호(10 ~ 16자리 숫자)
+    유효기간(4자리 숫자, mmyy)
+    cvc(3자리 숫자)
+    할부개월수 : 0(일시불), 1 ~ 12
+    결제금액(100원 이상, 10억원 이하, 숫자)
+    optional
+    부가가치세
+    response
+    성공
+    관리번호(unique id, 20자리)
+    카드사에 전달한 string 데이터 : "공통 헤더부문" + "데이터 부문"
   #### * API interface
   ### 4. API 요청 실패시 응답
   #### * API interface
