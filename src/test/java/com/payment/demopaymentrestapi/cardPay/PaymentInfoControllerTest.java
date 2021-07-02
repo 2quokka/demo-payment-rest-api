@@ -17,7 +17,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @RunWith(SpringRunner.class)
 @SpringBootTest
 @AutoConfigureMockMvc
-public class CardPayControllerTest {
+public class PaymentInfoControllerTest {
 
     @Autowired
     MockMvc mockMvc;
@@ -27,7 +27,7 @@ public class CardPayControllerTest {
 
     @Test
     public void createCardPayInfo() throws Exception {
-        CardPayInfoDTO cardPayInfoDTO = CardPayInfoDTO.builder()
+        PaymentInfoDTO paymentInfoDTO = PaymentInfoDTO.builder()
                 .cardNum("123123213")
                 .expDate("0124")
                 .cvc("123")
@@ -37,7 +37,7 @@ public class CardPayControllerTest {
 
         mockMvc.perform(post("/api/paycard")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(cardPayInfoDTO))
+                .content(objectMapper.writeValueAsString(paymentInfoDTO))
                 )
                 .andDo(print())
                 .andExpect(status().isCreated());
