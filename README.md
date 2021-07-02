@@ -8,21 +8,22 @@
 
 ## 테이블 설계
 
-<결제 테이블>
-관리번호(unique id, 20자리) pk 채번필요함
-카드번호(10 ~ 16자리 숫자)
-유효기간(4자리 숫자, mmyy)
-cvc(3자리 숫자)
-할부개월수 : 0(일시불), 1 ~ 12
-결제금액(100원 이상, 10억원 이하, 숫자)
-부가가치세
-최종결제금액
-최종부가가치세
-상태코드 (00:승인, 01:전체취소 02:부분취소)
-결제승인일시
-데이터생성일시
-데이터변경일시
-
+PAYMENT_INFO (결제정보)
+| COLUMN_NAME      | TYPE        | CONTENTS                                      |
+|------------------|-------------|-----------------------------------------------|
+| PAYMENT_ID       | VARCHAR(20) | 결제식별번호(unique id, 20자리) pk 채번필요함 |
+| CARD_NUM         | VARCHAR(16) | 카드번호(10 ~ 16자리 숫자)                    |
+| EXPIRY_DATE      | VARCHAR(4)  | 유효기간(4자리 숫자, mmyy)                    |
+| CVC_NUM          | VARCHAR(3)  | cvc(3자리 숫자)                               |
+| INSTALLMENTS     | NUMBER      | 할부개월수: 0(일시불), 1 ~ 12                 |
+| AMOUNT           | NUMBER      | 결제금액(100원 이상, 10억원 이하, 숫자)       |
+| VAT              | NUMBER      | 부가가치세                                    |
+| FINAL_AMOUNT     | NUMBER      | 최종결제금액                                  |
+| FINAL_VAT        | NUMBER      | 최종부가가치세                                |
+| STATUS           | VARCHAR(2)  | 상태코드 (00:승인, 01:전체취소 02:부분취소)   |
+| APPROVAL_DATE    | DATE        | 결제승인일시                                  |
+| DATA_CREATE_TIME | DATE        | 데이터생성일시                                |
+| DATA_MODIFY_TIME | DATE        | 데이터변경일시                                |
 
 <결제취소 테이블>
 관리번호(pk1, 20자리)
