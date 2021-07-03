@@ -50,7 +50,7 @@
   ### 1. 결제
     Method : POST
     URI : /api/payment
-    Content-Type : 
+    Content-Type : application/json;charset=UTF-8
   
 1)Request
   
@@ -72,7 +72,7 @@
   ### 2. 결제취소
     Method : POST
     URI : /api/cancelPay
-    Content-Type : 
+    Content-Type : application/json;charset=UTF-8
     
 1)Request
 
@@ -92,7 +92,7 @@
   ### 3. 데이터 조회
     Method : GET
     URI : /api/getPayInfo
-    Content-Type : 
+    Content-Type : application/json;charset=UTF-8
     
 1)Request
 
@@ -113,9 +113,9 @@
 | vat          | 부가가치세 |   Y  | 100원 이상, 10억원 이하, 숫자 |
   
   ### 4. 부분취소
-     Method : POST
-    URI : /api/cancelPay
-    Content-Type : 
+    Method : POST
+    URI : /api/partCancelPay
+    Content-Type : application/json;charset=UTF-8
     
 1)Request
 
@@ -132,5 +132,9 @@
 | data      | 데이터   |   Y  | 450자리 문자열 |
 
   ### 5. 응답에러코드
-  
+## 문제해결 및 전략
+1. 결제
+
+Request(json) -> TB 각 필드타입 변경을 위해 Mapper Class Converter 사용
+
 ## 빌드 및 실행방법
