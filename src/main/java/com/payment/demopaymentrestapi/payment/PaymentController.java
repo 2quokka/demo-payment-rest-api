@@ -4,6 +4,7 @@ import com.payment.demopaymentrestapi.card_company.CardCompany;
 import com.payment.demopaymentrestapi.card_company.CardCompanyRepository;
 import com.payment.demopaymentrestapi.common.DataOfCardCompany;
 import com.payment.demopaymentrestapi.common.PaymentId;
+import com.payment.demopaymentrestapi.common.SecCardInfo;
 import com.payment.demopaymentrestapi.mapper.PaymentDataMapper;
 import lombok.AllArgsConstructor;
 import org.modelmapper.ModelMapper;
@@ -62,7 +63,7 @@ public class PaymentController {
         PaymentId paymentId = new PaymentId();
         em.persist(paymentId);
 
-        String padPaymentId = String.format("%20d", paymentId.getId());
+        String padPaymentId = String.format("%020d", paymentId.getId());
 
         paymentInfo.setPaymentId(padPaymentId);
 
@@ -84,11 +85,21 @@ public class PaymentController {
         modelMapper.addMappings(new PaymentDataMapper());
         DataOfCardCompany dataOfCardCompany = modelMapper.map(savePaymentInfo, DataOfCardCompany.class);
 
-        //카드사 전달용 데이터 생성
-        cardCompany.setData(dataOfCardCompany.generateData());
+        //카드정보 암호화
+        SecCardInfo secCardInfo = new SecCardInfo(
+                savePaymentInfo.getCardNum()
+                , savePaymentInfo.getExpiryDate()
+                , savePaymentInfo.getCvcNum()
+        );
+        dataOfCardCompany.setEncCardInfo(secCardInfo.encCardInfo());
+
+        //카드사 전달용 데이터 생성터
+        String forwardData = dataOfCardCompany.generateData();
+        cardCompany.setData(forwardData);
         CardCompany saveCardCompany = this.cardCompanyRepository.save(cardCompany);
 
-        return ResponseEntity.status(HttpStatus.CREATED).body(paymentInfo);
+        //성공시, 관리번호, 카드사 전달한 데이터
+        return ResponseEntity.status(HttpStatus.CREATED).body(new PaymentResponse(savePaymentInfo.getPaymentId(), forwardData));
     }
 
 }

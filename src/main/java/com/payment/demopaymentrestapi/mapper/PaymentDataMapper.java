@@ -12,11 +12,9 @@ public class PaymentDataMapper extends PropertyMap<PaymentInfo, DataOfCardCompan
         map().setCardNum(source.getCardNum());
         map().setInstallment(String.valueOf(source.getInstallments()));
         map().setExpiryDate(source.getExpiryDate());
-        map().setCvc(source.getCvcNum());
+        map().setCvcNum(source.getCvcNum());
         map().setAmount(String.valueOf(source.getAmount()));
-        map().setVat(String.valueOf(source.getAmount()));
-
-        //암호화
+        map().setVat(String.valueOf(source.getVat()));
     }
 }
 

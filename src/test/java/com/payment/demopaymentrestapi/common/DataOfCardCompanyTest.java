@@ -12,7 +12,7 @@ public class DataOfCardCompanyTest {
         DataOfCardCompany dataOfCardCompany = DataOfCardCompany.builder()
                 .cardNum("1234567890123456")
                 .expiryDate("1125")
-                .cvc("777")
+                .cvcNum("777")
                 .installment("0")
                 .amount("110000")
                 .vat("10000")
@@ -24,8 +24,6 @@ public class DataOfCardCompanyTest {
 
         String data = dataOfCardCompany.generateData();
         assertThat(data).isNotNull();
-        System.out.println("Data : " + data.toString());
-        System.out.println("Data Length : " + data.length());
 
     }
 
@@ -35,7 +33,7 @@ public class DataOfCardCompanyTest {
         DataOfCardCompany dataOfCardCompany = DataOfCardCompany.builder()
                 .cardNum("1234567890123456")
                 .expiryDate("1125")
-                .cvc("777")
+                .cvcNum("777")
                 .installment("0")
                 .amount("110000")
                 .vat("10000")
@@ -48,8 +46,6 @@ public class DataOfCardCompanyTest {
 
         String data = dataOfCardCompany.generateData();
         assertThat(data).isNotNull();
-        System.out.println("Data : " + data.toString());
-        System.out.println("Data Length : " + data.length());
 
     }
 }

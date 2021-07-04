@@ -15,7 +15,7 @@ public class DataOfCardCompany {
     private String cardNum;
     private String installment;
     private String expiryDate;
-    private String cvc;
+    private String cvcNum;
     private String amount;
     private String vat;
     private String orginPaymentId; //취소시에만 결제관리번호 저장, 결제시에는 공백
@@ -31,7 +31,7 @@ public class DataOfCardCompany {
         sb.append(convertByType(cardNum, 20, RIGHT_SPACE));
         sb.append(convertByType(installment, 2, LEFT_ZERO));
         sb.append(convertByType(expiryDate, 4, RIGHT_SPACE));
-        sb.append(convertByType(cvc, 3, RIGHT_SPACE));
+        sb.append(convertByType(cvcNum, 3, RIGHT_SPACE));
         sb.append(convertByType(amount,10, LEFT_SPACE));
         sb.append(convertByType(vat, 10, LEFT_ZERO));
         sb.append(convertByType(orginPaymentId, 20, RIGHT_SPACE));
