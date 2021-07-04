@@ -1,7 +1,7 @@
 package com.payment.demopaymentrestapi.cardPay;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.payment.demopaymentrestapi.common.TestDescription;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,19 +27,17 @@ public class PaymentControllerTest {
     @Autowired
     ObjectMapper objectMapper;
 
-    /*
-        1.결제 API 테스트
-    * */
 
-    //정상
     @Test
-    public void payment() throws Exception {
+    @TestDescription("결제요청시 정상 동작 테스트")
+    public void payment_correct_input() throws Exception {
         PaymentInfoDTO paymentInfoDTO = PaymentInfoDTO.builder()
-                .cardNum(123123213213L)
-                .expiryDate(12)
-                .cvcNum(123)
+                .cardNum("1234567890123456")
+                .expiryDate("1234")
+                .cvcNum("123")
                 .installments(12)
                 .amount(10000)
+                .vat(0)
                 .build();
 
         mockMvc.perform(post("/api/payment")
@@ -47,70 +45,67 @@ public class PaymentControllerTest {
                 .content(objectMapper.writeValueAsString(paymentInfoDTO)))
                 .andDo(print())
                 .andExpect(status().isCreated())
-                .andExpect(status().isCreated())
-                .andExpect(jsonPath("paymentId").exists())
-                .andExpect(header().exists(HttpHeaders.LOCATION))
                 .andExpect(header().string(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE))
         ;
     }
 
-    //BADRequest
     @Test
-    public void payment_BADRequest() throws Exception {
-
-        //관리번호가 request로 들어왔을때 실패를 반환한다.
+    @TestDescription("결제요청시 잘못된 키가 들어왔을 경우 무시하고 올바른 키만 처리 ")
+    public void payment_bad_request_wrong_property() throws Exception {
+        //관리번호가 request로 들어왔을때, BadRequest
         PaymentInfo paymentInfo = PaymentInfo.builder()
                 .paymentId("123213")
-                .cardNum("123123213")
+                .cardNum("123123123123123")
                 .expiryDate("0124")
                 .cvcNum("123")
                 .installments(12)
                 .amount(10000)
                 .build();
 
-        mockMvc.perform(post("/api/payment")
+        this.mockMvc.perform(post("/api/payment")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(paymentInfo)))
+                .content(this.objectMapper.writeValueAsString(paymentInfo)))
                 .andDo(print())
-                .andExpect(status().isBadRequest())
+                .andExpect(status().isCreated())
+                .andExpect(header().string(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE))
         ;
     }
 
-    /*
-    * 예상 밖이의 요청값인경우 처리
-    * */
     @Test
-    public void payment_Bad_request() throws Exception {
+    @TestDescription("결제요청시 입력 값이 안들어온 경우 ")
+    public void payment_bad_request_input_null() throws Exception {
         PaymentInfoDTO paymentInfoDTO = PaymentInfoDTO.builder().build();
 
-        mockMvc.perform(post("/api/payment")
+        this.mockMvc.perform(post("/api/payment")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(this.objectMapper.writeValueAsString(paymentInfoDTO)))
+                .andDo(print())
                 .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$[0].objectName").exists())
+                .andExpect(jsonPath("$[0].field").exists())
+                .andExpect(jsonPath("$[0].defaultMessage").exists())
         ;
     }
-    /*
+
     @Test
-    public void testBaseTimeEntity(){
-        LocalDateTime now =  LocalDateTime.of(2021, 7,2, 0,0,0);
-        paymentInfoRepository.save(PaymentInfo.builder()
-                .paymentId(1L)
-                .amount(100)
-                .cardNum("123213")
-                .finalAmount(100)
-                .expiryDate("0221")
-                .vat(100)
-                .finalVat(100)
-                .installments(3)
+    @TestDescription("결제요청시 입력 값이 잘못된 경우 ")
+    public void payment_bad_request_wrong_value() throws Exception {
+        PaymentInfoDTO paymentInfoDTO = PaymentInfoDTO.builder()
+                .cardNum("123")     //잘못된 카드넘버
+                .expiryDate("12")
                 .cvcNum("123")
-                .build());
+                .installments(12)
+                .amount(10000)
+                .build();
 
-        PaymentInfo paymentInfo = paymentInfoRepository.findAll().get(0);
-
-        System.out.println(">>>>>>> createDate="+paymentInfo.getDataCreateTime()+", modifiedDate="+paymentInfo.getDataModifyTime());
-
-        assertThat(paymentInfo.getDataCreateTime()).isAfter(now);
-        assertThat(paymentInfo.getDataModifyTime()).isAfter(now);
+        this.mockMvc.perform(post("/api/payment")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(this.objectMapper.writeValueAsString(paymentInfoDTO)))
+                .andDo(print())
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$[0].objectName").exists())
+                .andExpect(jsonPath("$[0].field").exists())
+                .andExpect(jsonPath("$[0].defaultMessage").exists())
+        ;
     }
-    */
 }
