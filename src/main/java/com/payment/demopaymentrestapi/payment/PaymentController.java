@@ -1,6 +1,10 @@
-package com.payment.demopaymentrestapi.cardPay;
+package com.payment.demopaymentrestapi.payment;
 
+import com.payment.demopaymentrestapi.card_company.CardCompany;
+import com.payment.demopaymentrestapi.card_company.CardCompanyRepository;
+import com.payment.demopaymentrestapi.common.DataOfCardCompany;
 import com.payment.demopaymentrestapi.common.PaymentId;
+import com.payment.demopaymentrestapi.mapper.PaymentDataMapper;
 import lombok.AllArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
@@ -16,7 +20,6 @@ import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
 import javax.validation.Valid;
-import java.math.BigInteger;
 import java.time.LocalDateTime;
 
 @RestController
@@ -30,6 +33,7 @@ public class PaymentController {
 
     private final PaymentDTOValidator paymentDTOValidator;
 
+    private final CardCompanyRepository cardCompanyRepository;
     /*
     * 1. 결제 API
     * 카드정보, 금액정보를 입력받아 암호화 및 레이아웃에 맞게 변환하여 카드사에 전달한다.
@@ -71,8 +75,19 @@ public class PaymentController {
         //INSERT
         PaymentInfo savePaymentInfo = this.paymentInfoRepository.save(paymentInfo);
 
-        //카드사 전송
-        //String 변환 후 DB 저장
+        /*
+        * 카드사 전송
+        */
+        CardCompany cardCompany = new CardCompany();
+
+        //결제정보->카드사전달데이터 맵핑
+        modelMapper.addMappings(new PaymentDataMapper());
+        DataOfCardCompany dataOfCardCompany = modelMapper.map(savePaymentInfo, DataOfCardCompany.class);
+
+        //카드사 전달용 데이터 생성
+        cardCompany.setData(dataOfCardCompany.generateData());
+        CardCompany saveCardCompany = this.cardCompanyRepository.save(cardCompany);
+
         return ResponseEntity.status(HttpStatus.CREATED).body(paymentInfo);
     }
 

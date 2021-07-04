@@ -1,4 +1,4 @@
-package com.payment.demopaymentrestapi.cardPay;
+package com.payment.demopaymentrestapi.payment;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.payment.demopaymentrestapi.common.TestDescription;

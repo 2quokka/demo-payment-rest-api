@@ -1,4 +1,4 @@
-package com.payment.demopaymentrestapi.cardPay;
+package com.payment.demopaymentrestapi.payment;
 
 import org.springframework.stereotype.Component;
 import org.springframework.validation.Errors;

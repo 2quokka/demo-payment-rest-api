@@ -1,4 +1,4 @@
-package com.payment.demopaymentrestapi.cardPay;
+package com.payment.demopaymentrestapi.payment;
 
 import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;

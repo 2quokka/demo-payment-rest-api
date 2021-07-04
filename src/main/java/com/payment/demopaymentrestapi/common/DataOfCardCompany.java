@@ -5,9 +5,9 @@ import lombok.*;
 @Builder @Getter @Setter @ToString
 @AllArgsConstructor @NoArgsConstructor
 public class DataOfCardCompany {
-    private static final int LEFT_SPACE = 0; //숫자
-    private static final int LEFT_ZERO = 1 ; //숫자(0)
-    private static final int RIGHT_SPACE = 2; //숫자(L), 문자
+    private final int LEFT_SPACE = 0; //숫자
+    private final int LEFT_ZERO = 1 ; //숫자(0)
+    private final int RIGHT_SPACE = 2; //숫자(L), 문자
 
     private String dataLength;
     private String paymentType;

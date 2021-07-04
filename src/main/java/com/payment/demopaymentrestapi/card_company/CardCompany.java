@@ -1,8 +1,7 @@
-package com.payment.demopaymentrestapi.cardPay;
+package com.payment.demopaymentrestapi.card_company;
 
 import com.payment.demopaymentrestapi.common.BaseTimeEntity;
 import lombok.*;
-import org.hibernate.validator.constraints.CodePointLength;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;

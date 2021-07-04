@@ -1,4 +1,4 @@
-package com.payment.demopaymentrestapi.cardPay;
+package com.payment.demopaymentrestapi.payment;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

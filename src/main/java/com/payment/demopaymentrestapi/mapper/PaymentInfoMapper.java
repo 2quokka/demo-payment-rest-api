@@ -1,7 +1,7 @@
 package com.payment.demopaymentrestapi.mapper;
 
-import com.payment.demopaymentrestapi.cardPay.PaymentInfo;
-import com.payment.demopaymentrestapi.cardPay.PaymentInfoDTO;
+import com.payment.demopaymentrestapi.payment.PaymentInfo;
+import com.payment.demopaymentrestapi.payment.PaymentInfoDTO;
 import org.modelmapper.PropertyMap;
 
 public class PaymentInfoMapper extends PropertyMap<PaymentInfoDTO, PaymentInfo> {
