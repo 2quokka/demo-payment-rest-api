@@ -45,7 +45,7 @@
 | DATA_CREATE_TIME | DATE         | 데이터생성일시 |
 | DATA_MODIFY_TIME | DATE         | 데이터변경일시 |
 
-## API Interface
+## API Interface *json type추가
 
   ### 1. 결제
     Method : POST
@@ -133,7 +133,19 @@
 
   ### 5. 응답에러코드
 ## 문제해결 및 전략
-1. 결제
+
+### 1. 결제요청
+  #### * 관리번호 채번
+  #### * 테스트
+### 2. 결제취소
+  #### * 테스트
+### 3. 데이터 조회
+  #### * 테스트
+### 4. 부분취소
+  #### * 테스트
+### 5. 이외
+  #### * 카드사 전달용 문자열 생성
+  #### * 
 
 Request(json) -> TB 각 필드타입 변경을 위해 Mapper Class Converter 사용
 
