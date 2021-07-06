@@ -3,6 +3,7 @@ package com.payment.api.payment;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.payment.api.common.TestDescription;
 import com.payment.api.payment.dto.CancelPaymentDTO;
+import com.payment.api.payment.dto.PaymentIdDTO;
 import com.payment.api.payment.entity.PaymentInfo;
 import com.payment.api.payment.dto.PaymentInfoDTO;
 import org.junit.Test;
@@ -15,6 +16,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -40,6 +42,7 @@ public class PaymentControllerTest {
                 .cvcNum("123")
                 .installments(12)
                 .amount(1000)
+                .vat(100)
                 .build();
 
         mockMvc.perform(post("/api/payment")
@@ -59,7 +62,7 @@ public class PaymentControllerTest {
                 .cardNum("123123123123123")
                 .expiryDate("0124")
                 .cvcNum("123")
-                .installments(12)
+                .installments("12")
                 .amount(10000)
                 .build();
 
@@ -119,9 +122,23 @@ public class PaymentControllerTest {
                 .cancelVat(100)
                 .build();
 
-        this.mockMvc.perform(post("/api/cancelPay")
+        this.mockMvc.perform(post("/api/cancel")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(this.objectMapper.writeValueAsString(cancelPaymentDTO)))
+                .andDo(print())
+                .andExpect(status().isCreated())
+        ;
+    }
+
+    @Test
+    @TestDescription("결제 조회 정상 처리 응답")
+    public void payment_search_correct_input() throws Exception {
+        PaymentIdDTO paymentIdDTO = PaymentIdDTO.builder()
+                .paymentId("00000000000000000001")
+                .build();
+
+        this.mockMvc.perform(get("/api/payment-info")
+                .param("paymentId", "00000000000000000001"))
                 .andDo(print())
                 .andExpect(status().isCreated())
         ;

@@ -1,17 +1,15 @@
-package com.payment.api.card_company;
+package com.payment.api.payment.entity;
 
 import com.payment.api.common.BaseTimeEntity;
 import lombok.*;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
+import javax.persistence.*;
 
 @Entity @Builder
 @AllArgsConstructor @NoArgsConstructor
 @Getter @Setter
-public class CardCompany extends BaseTimeEntity {
+@Table (name = "CARD_COMPANY_DATA")
+public class CardCompanyData extends BaseTimeEntity {
     @Id @GeneratedValue
     private Long seqNum;
     @Column(length = 450)

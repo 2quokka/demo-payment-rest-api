@@ -1,4 +1,4 @@
-package com.payment.api.payment.repository;
+package com.payment.api.payment.dto;
 
 import com.payment.api.payment.dto.PaymentInfoDTO;
 import org.springframework.stereotype.Component;

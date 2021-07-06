@@ -1,6 +1,6 @@
 package com.payment.api.payment.controller;
 
-import com.payment.api.payment.repository.PaymentDTOValidator;
+import com.payment.api.payment.dto.PaymentDTOValidator;
 import com.payment.api.payment.dto.PaymentResponse;
 import com.payment.api.payment.service.PaymentService;
 import com.payment.api.payment.dto.CancelPaymentDTO;
@@ -46,21 +46,23 @@ public class PaymentController {
     /*
      * 2. 결제 취소 API  (부분취소)
      */
-    @PostMapping(value = "/cancelPay", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity cancelPay(@RequestBody @Valid CancelPaymentDTO cancelPaymentDTO, Errors errors){
+    @PostMapping(value = "/cancel-payment", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity cancelPayment(@RequestBody @Valid CancelPaymentDTO cancelPaymentDTO, Errors errors){
         if (errors.hasErrors()) {
             return ResponseEntity.badRequest().body(errors);
         }
 
+        PaymentResponse rs = paymentService.cancelPay(cancelPaymentDTO);
+
         //성공시, 관리번호, 카드사 전달한 데이터
-        return ResponseEntity.status(HttpStatus.CREATED).build();
+        return ResponseEntity.status(HttpStatus.CREATED).body(rs);
     }
 
     /*
      * 3. 결제 데이터 조회
      */
     @GetMapping(value = "/payment-info", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity getPayInfo(@RequestParam @Valid PaymentIdDTO paymentIdDTO, Errors errors){
+    public ResponseEntity getPaymentInfo(@Valid PaymentIdDTO paymentIdDTO, Errors errors){
         if (errors.hasErrors()) {
             return ResponseEntity.badRequest().body(errors);
         }

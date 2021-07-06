@@ -10,8 +10,8 @@ public class PaymentInfoMapper extends PropertyMap<PaymentInfoDTO, PaymentInfo> 
 //        map().setCardNum(source.getCardNum().toString());
 //        map().setExpiryDate(source.getExpiryDate().toString());
 //        map().setCvcNum(source.getCvcNum().toString());
-//        map().setInstallments(source.getInstallments());
-//        map().setAmount(source.getAmount());
-//        map().setVat(source.getVat());
+        map().setInstallments(String.format("%02d", source.getInstallments())); // 할부 00 : 일시불 ~ 2자리
+        map().setAmount(source.getAmount());
+        map().setVat(source.getVat());
     }
 }

@@ -4,12 +4,12 @@ import org.junit.Test;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
-public class DataOfCardCompanyTest {
+public class GenDataForForwardingTest {
 
     @Test
     @TestDescription("결제 String 데이터 ")
     public void gen_payment_string(){
-        DataOfCardCompany dataOfCardCompany = DataOfCardCompany.builder()
+        GenDataForForwarding genDataForForwarding = GenDataForForwarding.builder()
                 .cardNum("1234567890123456")
                 .expiryDate("1125")
                 .cvcNum("777")
@@ -22,7 +22,7 @@ public class DataOfCardCompanyTest {
                 .paymentType("PAYMENT")
                 .build();
 
-        String data = dataOfCardCompany.generateData();
+        String data = genDataForForwarding.generateData();
         assertThat(data).isNotNull();
 
     }
@@ -30,7 +30,7 @@ public class DataOfCardCompanyTest {
     @Test
     @TestDescription("전체취소 String 데이터 ")
     public void gen_cancel_string(){
-        DataOfCardCompany dataOfCardCompany = DataOfCardCompany.builder()
+        GenDataForForwarding genDataForForwarding = GenDataForForwarding.builder()
                 .cardNum("1234567890123456")
                 .expiryDate("1125")
                 .cvcNum("777")
@@ -44,7 +44,7 @@ public class DataOfCardCompanyTest {
                 .paymentType("CANCEL")
                 .build();
 
-        String data = dataOfCardCompany.generateData();
+        String data = genDataForForwarding.generateData();
         assertThat(data).isNotNull();
 
     }
