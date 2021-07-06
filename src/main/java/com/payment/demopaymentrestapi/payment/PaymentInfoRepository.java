@@ -1,6 +1,0 @@
-package com.payment.demopaymentrestapi.payment;
-
-import org.springframework.data.jpa.repository.JpaRepository;
-
-public interface PaymentInfoRepository extends JpaRepository<PaymentInfo, Long> {
-}
