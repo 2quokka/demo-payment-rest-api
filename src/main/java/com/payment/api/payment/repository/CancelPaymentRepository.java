@@ -5,4 +5,5 @@ import com.payment.api.payment.entity.CancelPaymentId;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface CancelPaymentRepository extends JpaRepository<CancelPayment, CancelPaymentId> {
+    long countbyPaymentId(String paymentId);
 }

@@ -1,40 +1,36 @@
 package com.payment.api.payment.entity;
 
 import org.hibernate.HibernateException;
+import org.hibernate.MappingException;
 import org.hibernate.engine.spi.SharedSessionContractImplementor;
-import org.hibernate.id.IdentifierGenerator;
+import org.hibernate.id.enhanced.SequenceStyleGenerator;
+import org.hibernate.internal.util.config.ConfigurationHelper;
+import org.hibernate.service.ServiceRegistry;
+import org.hibernate.type.LongType;
+import org.hibernate.type.Type;
 
 import java.io.Serializable;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.util.Properties;
 
-public class IdGenerator implements IdentifierGenerator {
+public class IdGenerator extends SequenceStyleGenerator {
+    public static final String VALUE_PREFIX_PARAMETER = "valuePrefix";
+    public static final String VALUE_PREFIX_DEFAULT = "";
+    private String valuePrefix;
+
+    public static final String NUMBER_FORMAT_PARAMETER = "numberFormat";
+    public static final String NUMBER_FORMAT_DEFAULT = "%d";
+    private String numberFormat;
+
     @Override
-    public Serializable generate(SharedSessionContractImplementor session, Object object)
-            throws HibernateException {
-
-        String prefix = "P";
-        // 이 Connection 은 Hibernate 가 관리하기 때문에 직접 close는 하지 말것.
-        Connection connection = session.connection();
-        try {
-
-            PreparedStatement ps = connection
-                    .prepareStatement("SELECT nextval ('seq_payment_id') as nextval");
-
-            ResultSet rs = ps.executeQuery();
-            if (rs.next()) {
-                int id = rs.getInt("nextval");
-                String code = prefix + String.format("%019d",id);
-                return code;
-            }
-
-        } catch (SQLException e) {
-            throw new HibernateException(
-                    "Unable to generate payment id Sequence");
-        }
-
-        return null;
+    public Serializable generate (SharedSessionContractImplementor session, Object object) throws HibernateException {
+        return valuePrefix + String.format(numberFormat, super.generate(session, object));
     }
+
+    @Override
+    public void configure (Type type, Properties params, ServiceRegistry serviceRegistry) throws MappingException {
+        super.configure(LongType.INSTANCE, params, serviceRegistry);
+        valuePrefix = ConfigurationHelper.getString(VALUE_PREFIX_PARAMETER, params, VALUE_PREFIX_DEFAULT);
+        numberFormat = ConfigurationHelper.getString(NUMBER_FORMAT_PARAMETER, params, NUMBER_FORMAT_PARAMETER);
+    }
+
 }

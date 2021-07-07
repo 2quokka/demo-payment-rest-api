@@ -4,11 +4,9 @@ import com.payment.api.common.BaseTimeEntity;
 import com.payment.api.payment.dto.State;
 import lombok.*;
 import org.hibernate.annotations.GenericGenerator;
-
+import org.hibernate.annotations.Parameter;
 import javax.persistence.*;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
 
 @Builder @AllArgsConstructor @NoArgsConstructor
 @Getter @Setter
@@ -18,8 +16,16 @@ import java.util.List;
 public class PaymentInfo extends BaseTimeEntity { //생성일시 수정일시 자동생성
 
     @Id @Column(name = "PAYMENT_ID", unique = true, length = 20, nullable = false)
-    @GenericGenerator(name="seq_payment_id", strategy = "com.payment.api.payment.entity.IdGenerator")
-    @GeneratedValue(generator = "seq_payment_id")
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "seq_id")
+    @GenericGenerator(
+            name="seq_id",
+            strategy = "com.payment.api.payment.entity.IdGenerator",
+            parameters = {
+                    @Parameter(name = IdGenerator.INCREMENT_PARAM, value = "50"),
+                    @Parameter(name = IdGenerator.VALUE_PREFIX_PARAMETER, value = "T_"),
+                    @Parameter(name = IdGenerator.NUMBER_FORMAT_PARAMETER, value = "%018d"),
+            }
+    )
     private String paymentId; //관리번호(unique id, 20자리)
 
     @Column(length = 16)

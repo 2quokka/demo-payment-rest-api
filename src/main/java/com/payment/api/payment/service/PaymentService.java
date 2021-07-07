@@ -11,16 +11,12 @@ import com.payment.api.common.SecCardInfo;
 import com.payment.api.exception.PaymentNotFoundException;
 import com.payment.api.payment.dto.*;
 import com.payment.api.payment.entity.CancelPayment;
-import com.payment.api.payment.entity.PaymentId;
 import com.payment.api.payment.entity.PaymentInfo;
 import com.payment.api.payment.repository.PaymentInfoRepository;
 import lombok.AllArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
-import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
-import javax.persistence.Persistence;
 import java.time.LocalDateTime;
 
 @Service @AllArgsConstructor
@@ -50,17 +46,6 @@ public class PaymentService {
             modelMapper.addMappings(new PaymentInfoMapper());
         }
         PaymentInfo paymentInfo = modelMapper.map(paymentInfoDTO, PaymentInfo.class);
-
-//        //paymentId(관리번호) 20자리 채번
-//        EntityManagerFactory emf = Persistence.createEntityManagerFactory("simple-jpa-application");
-//        EntityManager em = emf.createEntityManager();
-//
-//        PaymentId paymentId = new PaymentId();
-//        em.persist(paymentId);
-//
-//        String padPaymentId = String.format("%020d", paymentId.getId());
-//
-//        paymentInfo.setPaymentId(padPaymentId);
 
         /*
          * 나머지 값 셋팅
@@ -134,6 +119,8 @@ public class PaymentService {
         paymentInfo.setFinalAmount(restAmount); // 남은금액
         paymentInfo.setFinalVat(restVat); //남은 부가가치세
 
+        cancelPayment.setCancelTime(LocalDateTime.now());
+        cancelPayment.setSeqNum(cancelPaymentRepository.countbyPaymentId(id)+1);
 
         //취소내역 INSERT
         CancelPayment saveCancelPayment = cancelPaymentRepository.save(cancelPayment);

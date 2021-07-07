@@ -1,11 +1,13 @@
 package com.payment.api.payment.entity;
 
 import com.payment.api.common.BaseTimeEntity;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.springframework.stereotype.Service;
 
 import javax.persistence.*;
-import java.io.Serializable;
 import java.time.LocalDateTime;
 
 @Entity
@@ -20,7 +22,7 @@ public class CancelPayment extends BaseTimeEntity {
     @ManyToOne
     private PaymentInfo paymentId;
 
-    @Id @GeneratedValue
+    @Id
     private Long seqNum;
 
     @Column
