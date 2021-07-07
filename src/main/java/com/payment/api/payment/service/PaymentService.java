@@ -120,7 +120,7 @@ public class PaymentService {
         paymentInfo.setFinalVat(restVat); //남은 부가가치세
 
         cancelPayment.setCancelTime(LocalDateTime.now());
-        cancelPayment.setSeqNum(cancelPaymentRepository.countbyPaymentId(id)+1);
+        cancelPayment.setSeqNum(cancelPaymentRepository.getSeq(paymentInfo));
 
         //취소내역 INSERT
         CancelPayment saveCancelPayment = cancelPaymentRepository.save(cancelPayment);
