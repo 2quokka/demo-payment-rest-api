@@ -4,17 +4,20 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.payment.api.common.TestDescription;
 import com.payment.api.payment.dto.CancelPaymentDTO;
 import com.payment.api.payment.dto.PaymentIdDTO;
-import com.payment.api.payment.entity.PaymentInfo;
 import com.payment.api.payment.dto.PaymentInfoDTO;
+import com.payment.api.payment.service.PaymentService;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.web.context.WebApplicationContext;
+import org.springframework.web.filter.CharacterEncodingFilter;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -23,19 +26,67 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
-@AutoConfigureMockMvc
 public class PaymentControllerTest {
 
-    @Autowired
     MockMvc mockMvc;
+
+    @Autowired
+    private WebApplicationContext ctx;
 
     @Autowired
     ObjectMapper objectMapper;
 
+    @Autowired
+    PaymentService paymentService;
+    
+    @Before
+    public void before() throws Exception {
+        this.mockMvc = MockMvcBuilders.webAppContextSetup(ctx)
+                .addFilters(new CharacterEncodingFilter("UTF-8", true))  // 필터 추가
+                .build();
 
+        PaymentInfoDTO paymentInfoDTO_1 = PaymentInfoDTO.builder()
+                .amount(11000)
+                .vat(1000)
+                .cardNum("1234567890123456")
+                .cvcNum("123")
+                .installments(10)
+                .expiryDate("1111")
+                .build();
+        PaymentInfoDTO paymentInfoDTO_2 = PaymentInfoDTO.builder()
+                .amount(20000)
+                .vat(909)
+                .cardNum("1234567890123456")
+                .cvcNum("123")
+                .installments(10)
+                .expiryDate("1111")
+                .build();
+        PaymentInfoDTO paymentInfoDTO_3 = PaymentInfoDTO.builder()
+                .amount(20000)
+                .cardNum("1234567890123456")
+                .cvcNum("123")
+                .installments(10)
+                .expiryDate("1111")
+                .build();
+
+        mockMvc.perform(post("/payment")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(paymentInfoDTO_1)));
+        mockMvc.perform(post("/payment")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(paymentInfoDTO_2)));
+        mockMvc.perform(post("/payment")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(paymentInfoDTO_3)));
+    }
+
+    /*
+    * 1. 카드결제 API 테스트
+    * */
     @Test
-    @TestDescription("결제요청시 정상 동작 테스트")
-    public void payment_correct_input() throws Exception {
+    @TestDescription("결제요청시 정상 응답 테스트")
+    public void 카드결제_정상응답() throws Exception {
+
         PaymentInfoDTO paymentInfoDTO = PaymentInfoDTO.builder()
                 .cardNum("1234567890123456")
                 .expiryDate("1234")
@@ -45,42 +96,23 @@ public class PaymentControllerTest {
                 .vat(100)
                 .build();
 
-        mockMvc.perform(post("/api/payment")
+        mockMvc.perform(post("/payment")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(paymentInfoDTO)))
                 .andDo(print())
                 .andExpect(status().isCreated())
-                .andExpect(header().string(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE))
-        ;
-    }
-
-    @Test
-    @TestDescription("결제요청시 잘못된 키가 들어왔을 경우")
-    public void payment_bad_request_wrong_property() throws Exception {
-        PaymentInfo paymentInfo = PaymentInfo.builder()
-                .paymentId("123213") //관리번호가 request로 들어왔을때, BadRequest
-                .cardNum("123123123123123")
-                .expiryDate("0124")
-                .cvcNum("123")
-                .installments("12")
-                .amount(10000)
-                .build();
-
-        this.mockMvc.perform(post("/api/payment")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(this.objectMapper.writeValueAsString(paymentInfo)))
-                .andDo(print())
-                .andExpect(status().isCreated())
-                .andExpect(header().string(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE))
+                .andExpect(header().string(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_UTF8_VALUE))
+                .andExpect(jsonPath("paymentId").exists())
+                .andExpect(jsonPath("data").exists())
         ;
     }
 
     @Test
     @TestDescription("결제요청시 입력 값이 안 들어온 경우 ")
-    public void payment_bad_request_input_null() throws Exception {
+    public void 카드결제_입력값_없음() throws Exception {
         PaymentInfoDTO paymentInfoDTO = PaymentInfoDTO.builder().build();
 
-        this.mockMvc.perform(post("/api/payment")
+        this.mockMvc.perform(post("/payment")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(this.objectMapper.writeValueAsString(paymentInfoDTO)))
                 .andDo(print())
@@ -93,7 +125,7 @@ public class PaymentControllerTest {
 
     @Test
     @TestDescription("결제요청시 입력 값이 잘못된 경우 ")
-    public void payment_bad_request_wrong_value() throws Exception {
+    public void 카드결제_잘못된_입력값() throws Exception {
         PaymentInfoDTO paymentInfoDTO = PaymentInfoDTO.builder()
                 .cardNum("123")     //잘못된 카드넘버
                 .expiryDate("12")
@@ -102,7 +134,7 @@ public class PaymentControllerTest {
                 .amount(10000)
                 .build();
 
-        this.mockMvc.perform(post("/api/payment")
+        this.mockMvc.perform(post("/payment")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(this.objectMapper.writeValueAsString(paymentInfoDTO)))
                 .andDo(print())
@@ -113,16 +145,19 @@ public class PaymentControllerTest {
         ;
     }
 
+    /*
+     * 2. 카드취소 API 테스트
+     * */
     @Test
-    @TestDescription("결제 취소시 정상 처리 응답")
-    public void cancel_correct_input() throws Exception {
+    @TestDescription("결제취소시 정상응답")
+    public void 결제취소_정상_응답() throws Exception {
         CancelPaymentDTO cancelPaymentDTO = CancelPaymentDTO.builder()
-                .paymentId("00000000000000000001")
+                .paymentId("T_000000000000000001")
                 .cancelAmount(1000)
                 .cancelVat(100)
                 .build();
 
-        this.mockMvc.perform(post("/api/cancel")
+        this.mockMvc.perform(post("/cancel-payment")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(this.objectMapper.writeValueAsString(cancelPaymentDTO)))
                 .andDo(print())
@@ -131,16 +166,84 @@ public class PaymentControllerTest {
     }
 
     @Test
-    @TestDescription("결제 조회 정상 처리 응답")
-    public void payment_search_correct_input() throws Exception {
-        PaymentIdDTO paymentIdDTO = PaymentIdDTO.builder()
-                .paymentId("00000000000000000001")
-                .build();
+    @TestDescription("결제취소시 입력 값이 안 들어온 경우 ")
+    public void 결제취소_입력값_없음() throws Exception {
+        CancelPaymentDTO cancelPaymentDTO = CancelPaymentDTO.builder().build();
 
-        this.mockMvc.perform(get("/api/payment-info")
-                .param("paymentId", "00000000000000000001"))
+        this.mockMvc.perform(post("/cancel-payment")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(this.objectMapper.writeValueAsString(cancelPaymentDTO)))
                 .andDo(print())
-                .andExpect(status().isCreated())
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$[0].objectName").exists())
+                .andExpect(jsonPath("$[0].field").exists())
+                .andExpect(jsonPath("$[0].defaultMessage").exists())
         ;
     }
+
+    @Test
+    @TestDescription("결제취소시 입력 값이 잘못된 경우 ")
+    public void 결제취소_잘못된_입력값() throws Exception {
+        CancelPaymentDTO cancelPaymentDTO = CancelPaymentDTO.builder()
+                .paymentId("T_000000000000000001")
+                .cancelAmount(1)
+                .build();
+
+        this.mockMvc.perform(post("/cancel-payment")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(this.objectMapper.writeValueAsString(cancelPaymentDTO)))
+                .andDo(print())
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$[0].objectName").exists())
+                .andExpect(jsonPath("$[0].field").exists())
+                .andExpect(jsonPath("$[0].defaultMessage").exists())
+        ;
+    }
+
+    /*
+     * 3. 결제조회 API 테스트
+     * */
+    @Test
+    @TestDescription("결제조회시 정상응답")
+    public void 결제조회_정상_응답() throws Exception {
+
+        this.mockMvc.perform(get("/payment-info")
+                .param("paymentId","T_000000000000000001")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andDo(print())
+                .andExpect(jsonPath("paymentId").exists())
+                .andExpect(jsonPath("cardInfo").exists())
+                .andExpect(jsonPath("amount").exists())
+                .andExpect(jsonPath("state").exists())
+                .andExpect(jsonPath("vat").exists())
+        ;
+    }
+
+    @Test
+    @TestDescription("결제조회시 입력 값이 안 들어온 경우 ")
+    public void 결제조회_입력값_없음() throws Exception {
+        this.mockMvc.perform(get("/payment-info")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andDo(print())
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$[0].objectName").exists())
+                .andExpect(jsonPath("$[0].field").exists())
+                .andExpect(jsonPath("$[0].defaultMessage").exists())
+        ;
+    }
+
+    @Test
+    @TestDescription("결제조회시 입력 값이 잘못된 경우 ")
+    public void 결제조회_잘못된_입력값() throws Exception {
+        this.mockMvc.perform(get("/payment-info")
+                .param("paymentId","gg0012930129049210124")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andDo(print())
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("error").exists())
+                .andExpect(jsonPath("message").exists())
+        ;
+    }
+
 }

@@ -18,8 +18,8 @@ public class GenDataForForwarding {
     private String cvcNum;
     private String amount;
     private String vat;
-    private String orginPaymentId; //취소시에만 결제관리번호 저장, 결제시에는 공백
-    private String encCardInfo;
+    private String orginPaymentId; //취소시에만 원 결제관리번호 저장, 결제시에는 공백
+    private String encCardInfo;    //카드정보 암호화
     private String spare;   //예비공간 47
 
     public String generateData(){

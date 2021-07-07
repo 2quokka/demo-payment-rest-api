@@ -20,6 +20,7 @@ public class CancelPaymentDTO {
     @Min(100) @Max(1000000000)
     private Integer cancelAmount;     //취소금액
 
+    @Min(0) @Max(1000000000)
     private Integer cancelVat;  // 취소 부가가치세
 
 }

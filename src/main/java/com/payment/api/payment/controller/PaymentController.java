@@ -1,11 +1,7 @@
 package com.payment.api.payment.controller;
 
-import com.payment.api.payment.dto.PaymentDTOValidator;
-import com.payment.api.payment.dto.PaymentResponse;
+import com.payment.api.payment.dto.*;
 import com.payment.api.payment.service.PaymentService;
-import com.payment.api.payment.dto.CancelPaymentDTO;
-import com.payment.api.payment.dto.PaymentIdDTO;
-import com.payment.api.payment.dto.PaymentInfoDTO;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -16,7 +12,6 @@ import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
 
 @RestController
-@RequestMapping("/api")
 @AllArgsConstructor
 public class PaymentController {
 
@@ -26,7 +21,7 @@ public class PaymentController {
     * 1. 결제 API
     * 카드정보, 금액정보를 입력받아 암호화 및 레이아웃에 맞게 변환하여 카드사에 전달한다.
     */
-    @PostMapping(value = "/payment", produces = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(value = "/payment", produces = "application/json;charset=UTF-8")
     public ResponseEntity payment(@RequestBody @Valid PaymentInfoDTO paymentInfoDTO, Errors errors){
         if (errors.hasErrors()) {
             return ResponseEntity.badRequest().body(errors);
@@ -46,7 +41,7 @@ public class PaymentController {
     /*
      * 2. 결제 취소 API  (부분취소)
      */
-    @PostMapping(value = "/cancel-payment", produces = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(value = "/cancel-payment", produces = "application/json;charset=UTF-8")
     public ResponseEntity cancelPayment(@RequestBody @Valid CancelPaymentDTO cancelPaymentDTO, Errors errors){
         if (errors.hasErrors()) {
             return ResponseEntity.badRequest().body(errors);
@@ -61,13 +56,15 @@ public class PaymentController {
     /*
      * 3. 결제 데이터 조회
      */
-    @GetMapping(value = "/payment-info", produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(value = "/payment-info", produces = "application/json;charset=UTF-8")
     public ResponseEntity getPaymentInfo(@Valid PaymentIdDTO paymentIdDTO, Errors errors){
         if (errors.hasErrors()) {
             return ResponseEntity.badRequest().body(errors);
         }
 
+        SearchResponse rs = paymentService.searchPayment(paymentIdDTO);
+
         //성공시, 관리번호, 카드사 전달한 데이터
-        return ResponseEntity.status(HttpStatus.CREATED).build();
+        return ResponseEntity.status(HttpStatus.OK).body(rs);
     }
 }

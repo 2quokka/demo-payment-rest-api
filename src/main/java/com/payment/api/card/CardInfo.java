@@ -1,18 +1,19 @@
-package com.payment.api.common;
+package com.payment.api.card;
 
+import com.payment.api.common.SeedCrypto;
 import lombok.*;
 
 import java.util.StringJoiner;
 
 @Builder @Getter @Setter
 @NoArgsConstructor @ToString
-public class SecCardInfo {
+public class CardInfo {
     private String cardNum = "";
     private String expiryDate = "";
     private String cvc = "";
     public static String delimiter = "_";
 
-    public SecCardInfo(String cardNum, String expiryDate, String cvc){
+    public CardInfo(String cardNum, String expiryDate, String cvc){
         this.cardNum = cardNum;
         this.expiryDate = expiryDate;
         this.cvc = cvc;
@@ -36,17 +37,19 @@ public class SecCardInfo {
     }
 
     /*
-        카드정보를 복호화하여 문자열로 반환한다.
-     */
-    public static String decCardInfo(String enc){
-        return SeedCrypto.decrypt(enc);
-    }
-
-    /*
         문자열을 구분자로 구분하여 카드정보를 셋팅하여 반환한다.
     */
-    public static SecCardInfo getCardInfo(String cardInfo){
-        String[] infos = cardInfo.split(delimiter);
-        return new SecCardInfo(infos[0], infos[1], infos[2]);
+    public static CardInfo getDecCardInfo(String encCardInfo){
+        String param[] = new String[3];
+        String decCardInfo = SeedCrypto.decrypt(encCardInfo);
+        String[] infos = decCardInfo.split(delimiter);
+
+        int i = 0;
+        for (String p : infos) {
+            param[i++]=p;
+        }
+
+        return new CardInfo(param[0], param[1], param[2]);
+
     }
 }
