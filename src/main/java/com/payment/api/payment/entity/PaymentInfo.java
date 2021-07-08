@@ -43,6 +43,7 @@ public class PaymentInfo extends BaseTimeEntity { //생성일시 수정일시 �
     private Integer vat;     //부가가치세
 
     @Enumerated(EnumType.STRING)
+    @Column(length = 30)
     private State state;      //상태코드
 
     @Column
@@ -51,7 +52,7 @@ public class PaymentInfo extends BaseTimeEntity { //생성일시 수정일시 �
     @Column
     private Integer finalVat; //최종부가가치세
 
-    @Column
+    @Column(length = 20)
     private String orginPaymentId; //원래 관리번호
 
     @Column

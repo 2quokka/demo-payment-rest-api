@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 /*
  * 전달 받고자 하는 데이터만 선언한 클래스
  * 요청받을때 사용.
@@ -15,5 +16,6 @@ import javax.validation.constraints.NotNull;
 @Data @Builder @NoArgsConstructor @AllArgsConstructor
 public class PaymentIdDTO<paymentId> {
     @NotNull
+    @Size(min = 20, max = 20)
     private String paymentId;
 }

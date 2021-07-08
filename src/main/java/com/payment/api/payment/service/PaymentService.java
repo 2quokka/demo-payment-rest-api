@@ -1,18 +1,20 @@
 package com.payment.api.payment.service;
 
-import com.payment.api.exception.*;
-import com.payment.api.payment.entity.CardCompanyData;
-import com.payment.api.payment.repository.CardCompanyDataRepository;
-import com.payment.api.common.GenDataForForwarding;
 import com.payment.api.card.CardInfo;
+import com.payment.api.common.GenDataForForwarding;
+import com.payment.api.exception.*;
 import com.payment.api.payment.dto.*;
+import com.payment.api.payment.entity.CardCompanyData;
 import com.payment.api.payment.entity.PaymentInfo;
+import com.payment.api.payment.repository.CardCompanyDataRepository;
 import com.payment.api.payment.repository.PaymentInfoRepository;
 import lombok.AllArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.Optional;
 
 @Service @AllArgsConstructor
 public class PaymentService {
@@ -28,6 +30,7 @@ public class PaymentService {
      * @param paymentInfoDTO
      * @return PaymentResponse
      */
+    @Transactional
     public PaymentResponse payment(PaymentInfoDTO paymentInfoDTO){
         PaymentResponse rs = new PaymentResponse();
 
@@ -59,8 +62,7 @@ public class PaymentService {
         PaymentInfo savePaymentInfo = this.paymentInfoRepository.save(paymentInfo);
 
         //카드사 전송
-        CardCompanyData saveCardCompanyData = sendCardCompanyData(savePaymentInfo);
-
+        CardCompanyData saveCardCompanyData = cardCompanyDataRepository.save(genCardCompanyData(savePaymentInfo));
         rs.setPaymentId(savePaymentInfo.getPaymentId());
         rs.setData(saveCardCompanyData.getData());
         return rs;
@@ -71,88 +73,81 @@ public class PaymentService {
      * @param cancelPaymentDTO
      * @return PaymentResponse
      */
+    @Transactional
     public PaymentResponse cancelPay(CancelPaymentDTO cancelPaymentDTO){
         PaymentResponse rs = new PaymentResponse();
 
         String id = cancelPaymentDTO.getPaymentId();
+            //관리번호로 결제데이터 조회, 없을경우 Not found 에러
+            PaymentInfo paymentInfo = paymentInfoRepository.findbyIdForUpdate(id)
+                    .orElseThrow(() -> new PaymentNotFoundException(id));
 
-        //관리번호로 결제데이터 조회, 없을경우 Not found 에러
-        PaymentInfo paymentInfo = paymentInfoRepository.findById(id)
-                .orElseThrow(() -> new PaymentNotFoundException(id));
+            // 취소건 인경우
+            if (paymentInfo.getState() == State.CANCEL) {
+                throw new NotPaymentIdException(id);
+            }
+            //이미 전체 취소된 경우 (Payment의 finalAmount, finalVat 0 일경우)
+            if (paymentInfo.getFinalAmount() == 0 && paymentInfo.getFinalVat() == 0) {
+                throw new AlreadyCancelException(id);
+            }
 
-        // 취소건 인경우
-        if (paymentInfo.getState() == State.CANCEL) {
-            throw new NotPaymentIdException(id);
-        }
+            Integer amount = paymentInfo.getFinalAmount();
+            Integer vat = paymentInfo.getFinalVat();
+            Integer cancelAmount = cancelPaymentDTO.getCancelAmount();
+            Integer cancelVat = cancelPaymentDTO.getCancelVat();
 
-        //이미 전체 취소된 경우 (Payment의 finalAmount, finalVat 0 일경우)
-        if(paymentInfo.getFinalAmount()==0 && paymentInfo.getFinalVat()==0){
-            throw new  AlreadyCancelException(id);
-        }
+            //부가가치세가 안들어왔을 경우 계산
+            if (cancelVat == null) {
+                cancelPaymentDTO.setCancelVat(Math.round((float) cancelPaymentDTO.getCancelAmount() / 11));
+                cancelVat = cancelPaymentDTO.getCancelVat();
+            }
+            //취소 부가가치세가 남은 부가가치세보다 클 경우
+            else if (cancelVat > vat) {
+                throw new ExcessVatException(vat);
+            }
 
-        Integer amount = paymentInfo.getFinalAmount();
-        Integer vat = paymentInfo.getFinalVat();
-        Integer cancelAmount = cancelPaymentDTO.getCancelAmount();
-        Integer cancelVat = cancelPaymentDTO.getCancelVat();
+            //취소금액이 결제 금액보다 클 경우
+            if (cancelAmount > amount) {
+                throw new ExcessAmountException(amount);
+            }
 
-        //부가가치세가 안들어왔을 경우 계산
-        if (cancelVat == null) {
-            cancelPaymentDTO.setCancelVat(Math.round((float)cancelPaymentDTO.getCancelAmount()/11));
-            cancelVat = cancelPaymentDTO.getCancelVat();
-        }
-        //취소 부가가치세가 남은 부가가치세보다 클 경우
-        else if (cancelVat > vat) {
-            throw new ExcessVatException(vat);
-        }
+            Integer restAmount = amount - cancelAmount;
+            Integer restVat = vat - cancelVat;
 
-        if (cancelPaymentDTO.getCancelVat() == null) {
-            cancelPaymentDTO.setCancelVat(Math.round((float)cancelPaymentDTO.getCancelAmount()/11));
-        }
+            if (restAmount == 0 || restVat < 0) {
+                cancelVat = vat;
+                restVat = 0;
+            }
 
-        //취소금액이 결제 금액보다 클 경우
-        if (cancelAmount > amount) {
-            throw new ExcessAmountException(amount);
-        }
+            if (restVat > restAmount) {
+                throw new ExcessRestVatException(restVat);
+            }
 
-        Integer restAmount = amount - cancelAmount;
-        Integer restVat = vat - cancelVat;
+            PaymentInfo cancelPaymentInfo = PaymentInfo.builder()
+                    .encCardInfo(paymentInfo.getEncCardInfo())
+                    .installments("00")     // 취소시, 일시불
+                    .amount(cancelAmount)
+                    .vat(cancelVat)
+                    .finalAmount(restAmount)
+                    .finalVat(restVat)
+                    .state(State.CANCEL)
+                    .approvalTime(paymentInfo.getApprovalTime())
+                    .cancleTime(LocalDateTime.now())
+                    .orginPaymentId(paymentInfo.getPaymentId())
+                    .build();
+            //취소결제정보저장
+            PaymentInfo savePaymentInfo = this.paymentInfoRepository.save(cancelPaymentInfo);
 
-        if ( restVat > restAmount ) {
-            throw new ExcessRestVatException(restVat);
-        }
+            //결제 남은금액 업데이트
+            paymentInfo.setFinalAmount(restAmount);
+            paymentInfo.setFinalVat(restVat);
+//            paymentInfoRepository.save(paymentInfo);
 
-        if ( restAmount == 0 || restVat < 0) {
-            cancelVat = vat;
-            restVat = 0;
-        }
+            //카드사 전송
+            CardCompanyData saveCardCompanyData = cardCompanyDataRepository.save(genCardCompanyData(savePaymentInfo));
 
-        PaymentInfo cancelPaymentInfo = PaymentInfo.builder()
-                .encCardInfo(paymentInfo.getEncCardInfo())
-                .installments("00")     // 취소시, 일시불
-                .amount(cancelAmount)
-                .vat(cancelVat)
-                .finalAmount(restAmount)
-                .finalVat(restVat)
-                .state(State.CANCEL)
-                .approvalTime(paymentInfo.getApprovalTime())
-                .cancleTime(LocalDateTime.now())
-                .orginPaymentId(paymentInfo.getPaymentId())
-                .build();
-
-        //취소결제정보저장
-        PaymentInfo savePaymentInfo = this.paymentInfoRepository.save(cancelPaymentInfo);
-
-        //결제 남은금액 업데이트
-        paymentInfo.setFinalAmount(restAmount);
-        paymentInfo.setFinalVat(restVat);
-        paymentInfoRepository.save(paymentInfo);
-
-        //카드사 전송
-        CardCompanyData saveCardCompanyData = sendCardCompanyData(savePaymentInfo);
-
-        rs.setPaymentId(savePaymentInfo.getPaymentId());
-        rs.setData(saveCardCompanyData.getData());
-
+            rs.setPaymentId(savePaymentInfo.getPaymentId());
+            rs.setData(saveCardCompanyData.getData());
         return rs;
     }
 
@@ -182,20 +177,25 @@ public class PaymentService {
         }
         cardInfo.setCardNum(cardNum);
 
-        return SearchResponse.builder()
+        SearchResponse searchResponse = SearchResponse.builder()
                 .paymentId(paymentInfo.getPaymentId())
                 .cardInfo(cardInfo)
                 .state(paymentInfo.getState())
                 .amount(paymentInfo.getAmount())
                 .vat(paymentInfo.getVat())
                 .build();
+
+        if( paymentInfo.getState() == State.PAYMENT) {
+            searchResponse.setFinalAmount(paymentInfo.getFinalAmount());
+            searchResponse.setFinalVat(paymentInfo.getFinalVat());
+        }
+        return searchResponse;
     }
 
     /*
     *  1. 카드사 전달용 데이터 변환
-    *  2. 데이터 저장
     * */
-    public CardCompanyData sendCardCompanyData(PaymentInfo paymentInfo) {
+    public CardCompanyData genCardCompanyData(PaymentInfo paymentInfo) {
         CardCompanyData cardCompanyData = new CardCompanyData();
 
         System.out.println(paymentInfo.toString());
@@ -211,7 +211,7 @@ public class PaymentService {
         String forwardData = genDataForForwarding.generateData();
         cardCompanyData.setData(forwardData);
 
-        return this.cardCompanyDataRepository.save(cardCompanyData);
+        return cardCompanyData;
     }
 
 }
