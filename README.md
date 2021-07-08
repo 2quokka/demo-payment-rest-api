@@ -3,7 +3,7 @@
 카드결제, 전체취소, 데이터조회, 부분취소 기능이 있으며 멀티스레드 환경을 고려하였습니다.
 
 ## 개발환경
-JAVA, SpringBoot, JPA, Junit4
+JAVA, SpringBoot, JPA, Junit4, Maven
 
 ## 테이블 설계
 
@@ -190,11 +190,12 @@ JAVA, SpringBoot, JPA, Junit4
     1) Spring에서 지원하는 @Transaction 기능으로 Service의 각 기능 메소드를 트랜잭션으로 설정
     2) PaymentInfoRepository에 @Lock(LockModeType.PESSIMISTIC_WRITE) 설정으로  다른 세션에서 읽거나 쓰지 못하게 함
     
-   <테스트>  MultiThreadTest
-   A. 하나의 카드번호로 동시에 결제 할 경우 테스트
+   <테스트>  MultiThreadTest  
+   A. 하나의 카드번호로 동시에 결제 할 경우 테스트  
    B. 결제 한 건에 대한 전체취소를 동시에 할 경우 테스트  
-        MultiThreadTest.cancelPayment_multiThread_Check
+        MultiThreadTest.cancelPayment_multiThread_Check  
    C. 결제 한 건에 대한 부분취소를 동시에 할 경우 테스트  
         MultiThreadTest.cancelPayment_multiThread_Check
-  
+    
 ## 빌드 및 실행방법
+MAVEN BUILD.
