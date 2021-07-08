@@ -198,4 +198,5 @@ JAVA, SpringBoot, JPA, Junit4, Maven
         MultiThreadTest.cancelPayment_multiThread_Check
     
 ## 빌드 및 실행방법
-MAVEN BUILD.
+MAVEN BUILD 후 생성된 jar 파일 실행
+java -jar demo-payment-rest-api-0.0.1-SNAPSHOT.jar
