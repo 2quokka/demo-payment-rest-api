@@ -237,7 +237,7 @@ public class PaymentControllerTest {
     @TestDescription("결제조회시 입력 값이 잘못된 경우 ")
     public void 결제조회_잘못된_입력값() throws Exception {
         this.mockMvc.perform(get("/payment-info")
-                .param("paymentId","gg0012930129049210124")
+                .param("paymentId","12345678901234567890")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isNotFound())

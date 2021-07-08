@@ -5,6 +5,8 @@ import com.payment.api.payment.dto.State;
 import lombok.*;
 import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.Parameter;
+import org.modelmapper.internal.bytebuddy.implementation.bind.annotation.Default;
+
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;

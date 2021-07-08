@@ -51,7 +51,14 @@ public class MultiThreadTest {
         this.mockMvc = MockMvcBuilders.webAppContextSetup(ctx)
                 .addFilters(new CharacterEncodingFilter("UTF-8", true))  // 필터 추가
                 .build();
+    }
 
+    //전체 취소, 부분취소시, 스레드간 동시성 제어
+    //Id로 결제 정보 조회시 pessimistic lock mode를 사용하여 순차처리하도록함.
+    //초기결제금액 10000 -100 * 100 하면 최종금액은 0원이된다.
+    @Test
+    public void cancelPayment_multiThread_Check() throws Exception {
+        //given
         PaymentInfoDTO paymentInfoDTO = PaymentInfoDTO.builder()
                 .amount(10000)
                 .vat(0)
@@ -64,18 +71,11 @@ public class MultiThreadTest {
         mockMvc.perform(post("/payment")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(paymentInfoDTO)));
-    }
 
-
-    @Test
-    //전체 취소, 부분취소시, 스레드간 동시성 제어
-    //Id로 결제 정보 조회시 pessimistic lock mode를 사용하여 순차처리하도록함.
-    public void cancelPayment_multiThread_Check() throws Exception {
         int numberOfThreads = 100;
         ExecutorService service = Executors.newFixedThreadPool(10);
         CountDownLatch latch = new CountDownLatch(numberOfThreads);
 
-        //given
         CancelPaymentDTO cancelPaymentDTO = CancelPaymentDTO.builder()
                 .paymentId("T_000000000000000001")
                 .cancelAmount(100)

@@ -14,7 +14,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.Optional;
 
 @Service @AllArgsConstructor
 public class PaymentService {
@@ -46,6 +45,7 @@ public class PaymentService {
         if (modelMapper.getTypeMap(PaymentInfoDTO.class, PaymentInfo.class) == null) {
             modelMapper.addMappings(new PaymentInfoMapper());
         }
+
         PaymentInfo paymentInfo = modelMapper.map(paymentInfoDTO, PaymentInfo.class);
 
         //카드정보 암호화하여 셋팅
@@ -151,6 +151,7 @@ public class PaymentService {
         return rs;
     }
 
+    @Transactional
     public SearchResponse searchPayment(PaymentIdDTO paymentIdDTO) {
         String id = paymentIdDTO.getPaymentId();
 

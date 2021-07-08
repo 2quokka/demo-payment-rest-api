@@ -12,6 +12,8 @@ spring:
   jackson:
     deserialization:
       fail-on-unknown-properties: false
+  main:
+    allow-bean-definition-overriding: true
 
   jpa:
     database-platform: org.hibernate.dialect.H2Dialect
@@ -26,4 +28,6 @@ spring:
 logging:
   level:
     org.hibernate.type.descriptor.sql: trace
+
+
 
