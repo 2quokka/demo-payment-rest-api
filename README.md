@@ -130,12 +130,13 @@ JAVA, SpringBoot, JPA, Junit4
     5) 응답
     
   #### * 관리번호(PaymentId) 채번
-    PaymentInfo의 PaymentId는 20자리 문자열이기때문에 기본적으로 GenratedValue에서 생성해주는 숫자는 
-    사용할 수 없어 Custom Generator(IdGenerator)를 구현하였습니다. 
+    PaymentInfo의 PaymentId는 20자리 문자열이기때문에 
+    기본적으로 GenratedValue에서 생성해주는 숫자는 사용할 수 없어 Custom Generator(IdGenerator)를 구현하였습니다. 
     ex)paymentId : "T_000000000000000004"
     
   #### * 암호화
-    암호화는 SEED 블록암호화 알고리즘을 활용하였습니다. 카드정보(카드번호, 유효기간, CVC)는 암호화됩니다.
+    암호화는 SEED 블록암호화 알고리즘을 활용하였습니다. 
+    카드정보(카드번호, 유효기간, CVC)는 암호화됩니다.
     - 관련소스 : KISA_SEED_CBC
                SeedCrypto
     
