@@ -26,16 +26,27 @@ public class GenDataForForwarding {
         //450자리
         String result;
         StringBuilder sb = new StringBuilder();
+        System.out.println("paymentType");
         sb.append(convertByType(paymentType, 10, RIGHT_SPACE));
+        System.out.println("paymentId");
         sb.append(convertByType(paymentId, 20, RIGHT_SPACE));
+        System.out.println("cardNum");
         sb.append(convertByType(cardNum, 20, RIGHT_SPACE));
+        System.out.println("installment");
         sb.append(convertByType(installment, 2, LEFT_ZERO));
+        System.out.println("expiryDate");
         sb.append(convertByType(expiryDate, 4, RIGHT_SPACE));
+        System.out.println("cvcNum");
         sb.append(convertByType(cvcNum, 3, RIGHT_SPACE));
+        System.out.println("amount");
         sb.append(convertByType(amount,10, LEFT_SPACE));
+        System.out.println("vat");
         sb.append(convertByType(vat, 10, LEFT_ZERO));
+        System.out.println("orginPaymentId");
         sb.append(convertByType(orginPaymentId, 20, RIGHT_SPACE));
+        System.out.println("encCardInfo");
         sb.append(convertByType(encCardInfo, 300, RIGHT_SPACE));
+        System.out.println("spare");
         sb.append(convertByType(spare, 47, RIGHT_SPACE));
 
         dataLength = String.valueOf(sb.length());
@@ -78,6 +89,7 @@ public class GenDataForForwarding {
         else
             return null;
 
+        System.out.println("["+builder.toString()+"]  "+builder.toString().length());
         //System.out.println("["+builder.toString()+"] " + builder.length());
         return builder.toString();
     }

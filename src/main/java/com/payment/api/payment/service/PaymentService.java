@@ -96,13 +96,17 @@ public class PaymentService {
             Integer cancelAmount = cancelPaymentDTO.getCancelAmount();
             Integer cancelVat = cancelPaymentDTO.getCancelVat();
 
+            System.out.println("final vat : " + vat);
+            System.out.println("cancel vat : " + cancelVat);
+
             //부가가치세가 안들어왔을 경우 계산
             if (cancelVat == null) {
                 cancelPaymentDTO.setCancelVat(Math.round((float) cancelPaymentDTO.getCancelAmount() / 11));
                 cancelVat = cancelPaymentDTO.getCancelVat();
             }
+
             //취소 부가가치세가 남은 부가가치세보다 클 경우
-            else if (cancelVat > vat) {
+            if (cancelVat > vat) {
                 throw new ExcessVatException(vat);
             }
 
@@ -114,13 +118,13 @@ public class PaymentService {
             Integer restAmount = amount - cancelAmount;
             Integer restVat = vat - cancelVat;
 
+            if (restVat > restAmount) {
+                throw new ExcessRestVatException(restVat);
+            }
+
             if (restAmount == 0 || restVat < 0) {
                 cancelVat = vat;
                 restVat = 0;
-            }
-
-            if (restVat > restAmount) {
-                throw new ExcessRestVatException(restVat);
             }
 
             PaymentInfo cancelPaymentInfo = PaymentInfo.builder()
@@ -205,6 +209,13 @@ public class PaymentService {
             modelMapper.addMappings(new PaymentDataMapper());
         }
         GenDataForForwarding genDataForForwarding = modelMapper.map(paymentInfo, GenDataForForwarding.class);
+
+        //카드정보 복호화
+        CardInfo cardInfo = CardInfo.getDecCardInfo(paymentInfo.getEncCardInfo());
+        genDataForForwarding.setCardNum(cardInfo.getCardNum());
+        genDataForForwarding.setExpiryDate(cardInfo.getExpiryDate());
+        genDataForForwarding.setCvcNum(cardInfo.getCvc());
+
         if (paymentInfo.getState() != null) {
             genDataForForwarding.setPaymentType(paymentInfo.getState().toString());
         }
