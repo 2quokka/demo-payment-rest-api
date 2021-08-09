@@ -2,7 +2,7 @@ package com.payment.api.payment.service;
 
 import com.payment.api.card.CardInfo;
 import com.payment.api.common.GenDataForForwarding;
-import com.payment.api.exception.*;
+import com.payment.api.payment.exception.*;
 import com.payment.api.payment.dto.*;
 import com.payment.api.payment.entity.CardCompanyData;
 import com.payment.api.payment.entity.PaymentInfo;
@@ -12,7 +12,6 @@ import lombok.AllArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 import java.time.LocalDateTime;
 
 @Service @AllArgsConstructor
@@ -42,9 +41,9 @@ public class PaymentService {
 
         //컨버터 적용
         //맵핑
-        if (modelMapper.getTypeMap(PaymentInfoDTO.class, PaymentInfo.class) == null) {
-            modelMapper.addMappings(new PaymentInfoMapper());
-        }
+//        if (modelMapper.getTypeMap(PaymentInfoDTO.class, PaymentInfo.class) == null) {
+//            modelMapper.addMappings(new PaymentInfoMapper());
+//        }
 
         PaymentInfo paymentInfo = modelMapper.map(paymentInfoDTO, PaymentInfo.class);
 
@@ -79,8 +78,11 @@ public class PaymentService {
 
         String id = cancelPaymentDTO.getPaymentId();
             //관리번호로 결제데이터 조회, 없을경우 Not found 에러
-            PaymentInfo paymentInfo = paymentInfoRepository.findbyIdForUpdate(id)
+            PaymentInfo paymentInfo = paymentInfoRepository.findByIdForUpdate(id)
                     .orElseThrow(() -> new PaymentNotFoundException(id));
+
+//            PaymentInfo paymentInfo = paymentInfoRepository.findById(id)
+//                    .orElseThrow(() -> new PaymentNotFoundException(id));
 
             // 취소건 인경우
             if (paymentInfo.getState() == State.CANCEL) {
@@ -204,10 +206,10 @@ public class PaymentService {
         CardCompanyData cardCompanyData = new CardCompanyData();
 
         System.out.println(paymentInfo.toString());
-        //결제정보->카드사전달데이터 중복 맵핑 추가 방지.
-        if (modelMapper.getTypeMap(PaymentInfo.class, GenDataForForwarding.class) == null) {
-            modelMapper.addMappings(new PaymentDataMapper());
-        }
+//        //결제정보->카드사전달데이터 중복 맵핑 추가 방지.
+//        if (modelMapper.getTypeMap(PaymentInfo.class, GenDataForForwarding.class) == null) {
+//            modelMapper.addMappings(new PaymentDataMapper());
+//        }
         GenDataForForwarding genDataForForwarding = modelMapper.map(paymentInfo, GenDataForForwarding.class);
 
         //카드정보 복호화

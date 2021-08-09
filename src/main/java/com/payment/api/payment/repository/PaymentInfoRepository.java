@@ -12,7 +12,7 @@ import java.util.Optional;
 public interface PaymentInfoRepository extends JpaRepository<PaymentInfo, String> {
     Optional<PaymentInfo> findById(String id);
 
-    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Lock(LockModeType.PESSIMISTIC_READ)
     @Query("select p from PaymentInfo p where p.paymentId = :id")
-    Optional<PaymentInfo> findbyIdForUpdate(@Param("id") String id);
+    Optional<PaymentInfo> findByIdForUpdate(@Param("id") String id);
 }

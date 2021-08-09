@@ -1,4 +1,4 @@
-package com.payment.api.exception;
+package com.payment.api.payment.exception;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

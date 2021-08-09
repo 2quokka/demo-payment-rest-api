@@ -3,11 +3,15 @@ package com.payment.api.payment.controller;
 import com.payment.api.payment.dto.*;
 import com.payment.api.payment.service.PaymentService;
 import lombok.AllArgsConstructor;
+import org.hibernate.StaleObjectStateException;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.validation.Errors;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
 
@@ -46,8 +50,15 @@ public class PaymentController {
         if (errors.hasErrors()) {
             return ResponseEntity.badRequest().body(errors);
         }
+        PaymentResponse rs;
 
-        PaymentResponse rs = paymentService.cancelPay(cancelPaymentDTO);
+        try {
+            rs = paymentService.cancelPay(cancelPaymentDTO);
+        }
+        catch (ObjectOptimisticLockingFailureException ex) {
+            System.out.println("재시도 !!!");
+            rs = paymentService.cancelPay(cancelPaymentDTO);
+        }
 
         //성공시, 관리번호, 카드사 전달한 데이터
         return ResponseEntity.status(HttpStatus.CREATED).body(rs);

@@ -1,7 +1,7 @@
 package com.payment.api.payment;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.payment.api.exception.PaymentNotFoundException;
+import com.payment.api.payment.exception.PaymentNotFoundException;
 import com.payment.api.payment.dto.CancelPaymentDTO;
 import com.payment.api.payment.dto.PaymentInfoDTO;
 import com.payment.api.payment.entity.PaymentInfo;
@@ -53,11 +53,43 @@ public class MultiThreadTest {
                 .build();
     }
 
+    @Test
+    public void payment_multiThread_check() throws Exception {
+        //given
+        int numberOfThreads = 100;
+        ExecutorService service = Executors.newFixedThreadPool(10);
+        CountDownLatch latch = new CountDownLatch(numberOfThreads);
+        PaymentInfoDTO paymentInfoDTO = PaymentInfoDTO.builder()
+                .amount(10000)
+                .vat(0)
+                .cardNum("1234567890123456")
+                .cvcNum("123")
+                .installments(10)
+                .expiryDate("1111")
+                .build();
+        //when
+        for (int i = 0; i < numberOfThreads; i++) {
+            service.execute(() -> {
+                try {
+                    this.mockMvc.perform(post("/payment")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(this.objectMapper.writeValueAsString(paymentInfoDTO)));
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                latch.countDown();
+            });
+        }
+        latch.await();
+    }
+
+
     //전체 취소, 부분취소시, 스레드간 동시성 제어
     //Id로 결제 정보 조회시 pessimistic lock mode를 사용하여 순차처리하도록함.
     //초기결제금액 10000 -100 * 100 하면 최종금액은 0원이된다.
+    //동시에 여러요청으로 같은 ID를 취소할 가능성이 낮기 때문에 낙관적 잠금을 사용할 수도 있다.
     @Test
-    public void cancelPayment_multiThread_Check() throws Exception {
+    public void cancelPayment_multiThread_check() throws Exception {
         //given
         PaymentInfoDTO paymentInfoDTO = PaymentInfoDTO.builder()
                 .amount(10000)
