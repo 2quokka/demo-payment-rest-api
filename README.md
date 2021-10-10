@@ -11,7 +11,7 @@ JAVA, SpringBoot, JPA, Junit4, Maven
 | COLUMN_NAME      | TYPE        | COMMENTS                                      |
 |------------------|-------------|-----------------------------------------------|
 | PAYMENT_ID       | VARCHAR(20)(PK) | 결제식별번호(unique id, 20자리)  |
-| ENC_CARD_INFO    | VARCHAR(300)| 암호회된 카드정보                    |
+| ENC_CARD_INFO    | VARCHAR(300)| 암호화된 카드정보                    |
 | INSTALLMENTS     | VARCHAR(2)  | 할부개월수: 0(일시불), 1 ~ 12                 |
 | AMOUNT           | NUMBER      | 결제금액(100원 이상, 10억원 이하, 숫자)       |
 | VAT              | NUMBER      | 부가가치세                                    |
